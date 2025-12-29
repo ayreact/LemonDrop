@@ -27,7 +27,7 @@ const SocialLinks = () => (
         rel="noopener noreferrer"
         className="text-muted-foreground hover:text-foreground transition-colors"
       >
-        <Icon className="text-muted-foreground hover:text-foreground transition-colors" />
+        <Icon className="w-6 h-6 text-muted-foreground hover:text-foreground transition-colors" />
       </a>
     ))}
   </div>
