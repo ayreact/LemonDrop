@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Loader2 } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,29 +37,36 @@ const Messages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (showRefreshLoading = false) => {
     if (!user?.username) return;
+
+    if (showRefreshLoading) {
+      setIsRefreshing(true);
+    }
 
     try {
       const data = await getMessages(user.username);
-      // Map backend response to frontend Message type
-      // Backend: { id, message, timestamp }
+
       const mappedMessages = data.map((msg: any) => ({
         id: msg.id,
         content: msg.message_content || "",
         date: formatTimestamp(msg.created_at),
-        favorite: false, // Default to false as backend doesn't store this
-        archived: false  // Default to false
-      }));
+        favorite: false,
+        archived: false
+      })).reverse();
       setMessages(mappedMessages);
 
-      toast({
-        title: "Updated",
-        description: "Messages loaded successfully",
-        variant: "default",
-      });
+      if (showRefreshLoading) {
+        toast({
+          title: "Updated",
+          description: "Messages loaded successfully",
+          variant: "default",
+        });
+      }
     } catch (error) {
       console.error("Failed to load messages", error);
       toast({
@@ -65,17 +74,15 @@ const Messages = () => {
         description: "Failed to load messages",
         variant: "destructive",
       });
+    } finally {
+      setIsLoadingMessages(false);
+      setIsRefreshing(false);
     }
   };
 
-  // Load messages on component mount
   useEffect(() => {
     fetchMessages();
-  }, [user]); // Re-fetch when user changes (e.g. login)
-
-  // No local storage sync needed for messages themselves as we fetch from API
-  // But we might want to persist 'favorite'/'archived' status in LS if we want to keep them across reloads
-  // For now, let's keep it simple and just use local state.
+  }, [user]);
 
   const filteredMessages = messages.filter(message => {
     const content = message.content || "";
@@ -146,7 +153,7 @@ const Messages = () => {
   };
 
   const refreshMessages = () => {
-    fetchMessages();
+    fetchMessages(true);
   };
 
   return (
@@ -199,8 +206,8 @@ const Messages = () => {
                 </DialogContent>
               </Dialog>
 
-              <Button variant="outline" onClick={refreshMessages}>
-                <RefreshCw className="mr-2 h-4 w-4" />
+              <Button variant="outline" onClick={refreshMessages} isLoading={isRefreshing}>
+                {!isRefreshing && <RefreshCw className="mr-2 h-4 w-4" />}
                 Refresh
               </Button>
             </div>
@@ -211,10 +218,10 @@ const Messages = () => {
               <Tabs defaultValue="all" onValueChange={setActiveTab}>
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
                   <div className="w-full max-w-[400px]">
-                    <TabsList className="sm:grid w-full grid-cols-3">
-                      <TabsTrigger value="all">All Messages</TabsTrigger>
-                      <TabsTrigger value="favorites">Favorites</TabsTrigger>
-                      <TabsTrigger value="archived">Archived</TabsTrigger>
+                    <TabsList className="flex flex-col sm:grid sm:w-full sm:grid-cols-3 h-auto sm:h-10 gap-1 sm:gap-0 bg-muted/50 sm:bg-muted p-1 rounded-lg">
+                      <TabsTrigger value="all" className="w-full">All Messages</TabsTrigger>
+                      <TabsTrigger value="favorites" className="w-full">Favorites</TabsTrigger>
+                      <TabsTrigger value="archived" className="w-full">Archived</TabsTrigger>
                     </TabsList>
                   </div>
 
@@ -231,7 +238,12 @@ const Messages = () => {
                 </div>
 
                 <TabsContent value="all" className="space-y-4 mt-0">
-                  {filteredMessages.length > 0 ? (
+                  {isLoadingMessages ? (
+                    <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                      <Loader2 className="h-8 w-8 animate-spin text-lemon-400" />
+                      <p className="text-muted-foreground">Loading your messages...</p>
+                    </div>
+                  ) : filteredMessages.length > 0 ? (
                     filteredMessages.map((message) => (
                       <div key={message.id} className="bg-background p-4 rounded-lg border">
                         <div className="flex justify-between items-center mb-2">
@@ -299,7 +311,11 @@ const Messages = () => {
                 </TabsContent>
 
                 <TabsContent value="favorites" className="space-y-4 mt-0">
-                  {filteredMessages.length > 0 ? (
+                  {isLoadingMessages ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-lemon-400" />
+                    </div>
+                  ) : filteredMessages.length > 0 ? (
                     filteredMessages.map((message) => (
                       <div key={message.id} className="bg-background p-4 rounded-lg border">
                         <div className="flex justify-between items-center mb-2">
@@ -367,7 +383,11 @@ const Messages = () => {
                 </TabsContent>
 
                 <TabsContent value="archived" className="space-y-4 mt-0">
-                  {filteredMessages.length > 0 ? (
+                  {isLoadingMessages ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-lemon-400" />
+                    </div>
+                  ) : filteredMessages.length > 0 ? (
                     filteredMessages.map((message) => (
                       <div key={message.id} className="bg-background p-4 rounded-lg border">
                         <div className="flex justify-between items-center mb-2">

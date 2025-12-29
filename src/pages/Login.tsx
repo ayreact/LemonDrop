@@ -31,10 +31,13 @@ const Login = () => {
     });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const { loginUser } = React.useContext(AuthContext);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     // Basic validation
     if (!formData.username || !formData.password) {
@@ -43,6 +46,7 @@ const Login = () => {
         description: "Please enter both username and password",
         variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -84,6 +88,8 @@ const Login = () => {
         description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -160,7 +166,7 @@ const Login = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full bg-lemon-400 hover:bg-lemon-500 text-white">
+              <Button type="submit" className="w-full bg-lemon-400 hover:bg-lemon-500 text-white" isLoading={isLoading}>
                 Login
               </Button>
             </form>

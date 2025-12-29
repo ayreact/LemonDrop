@@ -23,6 +23,8 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -33,6 +35,7 @@ const SignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     // Basic validation
     if (!formData.username || !formData.email || !formData.password) {
@@ -41,6 +44,17 @@ const SignUp = () => {
         description: "Please fill out all fields",
         variant: "destructive",
       });
+      setIsLoading(false);
+      return;
+    }
+
+    if (/\s/.test(formData.username)) {
+      toast({
+        title: "Error",
+        description: "Username cannot contain whitespace",
+        variant: "destructive",
+      });
+      setIsLoading(false);
       return;
     }
 
@@ -50,6 +64,7 @@ const SignUp = () => {
         description: "Passwords do not match",
         variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -59,6 +74,7 @@ const SignUp = () => {
         description: "Please accept the Terms of Service and Privacy Policy",
         variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -91,6 +107,8 @@ const SignUp = () => {
         description: "Could not create account. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -209,7 +227,7 @@ const SignUp = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" isLoading={isLoading}>
                 Create Account
               </Button>
             </form>

@@ -85,8 +85,8 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-3">
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="py-4 space-y-3">
             <Link
               to="/"
               className="block py-2 text-foreground hover:text-lemon-400 transition-colors"
@@ -131,14 +131,14 @@ const Navbar: React.FC = () => {
                   Login
                 </Link>
                 <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="default" className="w-full bg-lemon-300 text-foreground hover:bg-lemon-400">
+                  <Button variant="default" className="w-full bg-lemon-300 text-foreground hover:bg-lemon-400 mt-2">
                     Sign Up
                   </Button>
                 </Link>
               </>
             )}
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );
