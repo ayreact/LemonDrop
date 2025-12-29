@@ -9,7 +9,7 @@ const socialLinks = {
   instagram: "https://www.instagram.com/ay_react",
   twitter: "https://x.com/ay_react",
   tiktok: "https://tiktok.com/@ay_react",
-  github: "https://github.com/ayreact",
+  github: "https://github.com/ayreact/LemonDrop",
 };
 
 const SocialLinks = () => (
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} LemonDrop. All rights reserved | By <Link className='text-lemon-500 hover:underline' to="https://ayreact-portfolio.onrender.com">AY_REACT</Link>
+            © {new Date().getFullYear()} LemonDrop. All rights reserved
           </p>
           <SocialLinks />
         </div>
