@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    
+    /* Lemon theme colors */
+    --primary: 72 64% 80%;  /* Soft lemon green */
+    --primary-foreground: 240 5.9% 10%;
+    
+    --secondary: 60 80% 96%;  /* Pale yellow */
+    --secondary-foreground: 240 5.9% 10%;
+    
+    --accent: 82 56% 70%;  /* Brighter lemon green */
+    --accent-foreground: 240 5.9% 10%;
+    
+    --muted: 60 40% 96.1%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 72 64% 80%;
+    
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    /* Dark mode lemon theme */
+    --primary: 72 64% 60%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 60 30% 20%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --accent: 82 56% 40%;
+    --accent-foreground: 0 0% 98%;
+    
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 72 64% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Custom utilities */
+.lemon-gradient {
+  background: linear-gradient(135deg, hsl(82, 56%, 88%) 0%, hsl(60, 80%, 96%) 100%);
+}
+
+.lemon-shadow {
+  box-shadow: 0 4px 14px rgba(200, 230, 150, 0.25);
+}
+
+/* Add custom lemon colors for easy use with Tailwind classes */
+.text-lemon-400 {
+  color: hsl(72, 64%, 60%);
+}
+
+.bg-lemon-400 {
+  background-color: hsl(72, 64%, 70%);
+}
+
+.hover\:bg-lemon-500:hover {
+  background-color: hsl(72, 64%, 60%);
+}
+
+.bg-lemon-500 {
+  background-color: hsl(72, 64%, 60%);
+}
+
+/* Footer styling */
+.footer {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Consistent form styling for light/dark modes */
+.auth-card {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+.auth-form {
+  background-color: transparent;
+}
+
+/* Fix for buttons in light/dark mode */
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Form inputs for both modes */
+.form-input {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Social buttons for both modes */
+.social-btn {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Additional dark mode fixes for footers and forms */
+html.dark .footer,
+body.dark-mode .footer {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+html.dark .auth-card,
+body.dark-mode .auth-card {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+/* Toast styling */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-success {
+  border-left: 4px solid #10b981;
+}
+
+.toast-error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.toast-icon {
+  margin-right: 10px;
+}
+
+.toast-message {
+  flex: 1;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+}

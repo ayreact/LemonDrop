@@ -1,0 +1,21 @@
+{
+    "name": "LemonDrop",
+    "short_name": "LemonDrop",
+    "start_url": "/",
+    "description": "Anonymous messaging made for everyone!",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#d0e382",
+    "background_color": "#d0e382",
+    "display": "standalone"
+}
