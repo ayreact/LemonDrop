@@ -4,7 +4,7 @@ const PrivacyPolicy: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
-      <p><strong>Effective Date:</strong> 17th March, 2025</p>
+      <p><strong>Effective Date:</strong> 1st January, 2025</p>
 
       <h2 className="text-xl font-semibold mt-4">1. Information We Collect</h2>
       <ul className="list-disc pl-5">
