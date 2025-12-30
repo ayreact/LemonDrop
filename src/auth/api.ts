@@ -18,8 +18,13 @@ export interface User {
 
 export interface Message {
   id: number;
-  message: string;
-  timestamp: string;
+  message_content: string;
+  created_at: string;
+  has_email: boolean;
+  reply: {
+    reply_content: string;
+    created_at: string;
+  } | null;
 }
 
 // Function to fetch user info
@@ -133,13 +138,22 @@ export const refreshAccessToken = async () => {
 
 // --- Message Services ---
 
-export const sendMessage = async (username: string, message: string) => {
-  const response = await api.post(`/messages/new_message/${username}/`, { message });
+export const sendMessage = async (username: string, message_content: string, sender_email?: string) => {
+  const payload: any = { message_content };
+  if (sender_email) {
+    payload.sender_email = sender_email;
+  }
+  const response = await api.post(`/messages/new_message/${username}/`, payload);
   return response.data;
 };
 
 export const getMessages = async (username: string) => {
   const response = await api.get(`/messages/retrieve/${username}/`);
+  return response.data;
+};
+
+export const replyToMessage = async (messageId: number, reply_content: string) => {
+  const response = await api.post(`/messages/reply/${messageId}/`, { reply_content });
   return response.data;
 };
 

@@ -50,6 +50,16 @@ const Login = () => {
       return;
     }
 
+    if (/\s/.test(formData.username)) {
+      toast({
+        title: "Invalid Username",
+        description: "Username cannot contain whitespace",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await loginUser(formData.username, formData.password);
       toast({
