@@ -33,29 +33,56 @@ const SignUp = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Basic validation
-    if (!formData.username || !formData.email || !formData.password) {
+  const validateForm = () => {
+    // Username validation
+    if (formData.username.length < 5) {
       toast({
-        title: "Error",
-        description: "Please fill out all fields",
+        title: "Invalid Username",
+        description: "Username must be at least 5 characters long",
         variant: "destructive",
       });
-      setIsLoading(false);
-      return;
+      return false;
     }
 
     if (/\s/.test(formData.username)) {
       toast({
-        title: "Error",
+        title: "Invalid Username",
         description: "Username cannot contain whitespace",
         variant: "destructive",
       });
-      setIsLoading(false);
-      return;
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Password validation
+    if (formData.password.length < 8) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Optional: Add more complex password checks (e.g. number, special char) if "good password" implies that.
+    // For now, let's add a check for at least one number to make it "good".
+    if (!/\d/.test(formData.password)) {
+      toast({
+        title: "Weak Password",
+        description: "Password must contain at least one number",
+        variant: "destructive",
+      });
+      return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -64,8 +91,7 @@ const SignUp = () => {
         description: "Passwords do not match",
         variant: "destructive",
       });
-      setIsLoading(false);
-      return;
+      return false;
     }
 
     if (!formData.termsAccepted) {
@@ -74,9 +100,20 @@ const SignUp = () => {
         description: "Please accept the Terms of Service and Privacy Policy",
         variant: "destructive",
       });
-      setIsLoading(false);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
       return;
     }
+
+    setIsLoading(true);
 
     try {
       await signup(formData.username, formData.email, formData.password);

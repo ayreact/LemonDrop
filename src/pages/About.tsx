@@ -9,7 +9,7 @@ const About = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-16 md:py-24 lemon-gradient">
@@ -27,7 +27,7 @@ const About = () => {
             </div>
           </div>
         </section>
-        
+
         {/* Story Section */}
         <section className="py-16 md:py-24">
           <div className="container px-4 md:px-6">
@@ -46,16 +46,16 @@ const About = () => {
               </div>
               <div className="relative">
                 <div className="absolute inset-0 bg-lemon-200 rounded-2xl transform -rotate-3"></div>
-                <img 
-                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-                  alt="Team collaboration" 
+                <img
+                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                  alt="Team collaboration"
                   className="relative rounded-2xl shadow-lg"
                 />
               </div>
             </div>
           </div>
         </section>
-        
+
         {/* Values Section */}
         <section className="py-16 md:py-24 bg-secondary">
           <div className="container px-4 md:px-6">
@@ -65,7 +65,7 @@ const About = () => {
                 These core principles guide everything we do at LemonDrop.
               </p>
             </div>
-            
+
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               <div className="bg-background p-6 rounded-lg border text-center">
                 <div className="bg-lemon-200 p-3 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
@@ -76,7 +76,7 @@ const About = () => {
                   We prioritize user privacy and data protection in everything we build.
                 </p>
               </div>
-              
+
               <div className="bg-background p-6 rounded-lg border text-center">
                 <div className="bg-lemon-200 p-3 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
                   <Eye className="h-6 w-6 text-lemon-500" />
@@ -86,7 +86,7 @@ const About = () => {
                   We're clear about how our platform works and how your data is used.
                 </p>
               </div>
-              
+
               <div className="bg-background p-6 rounded-lg border text-center">
                 <div className="bg-lemon-200 p-3 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
                   <AlertTriangle className="h-6 w-6 text-lemon-500" />
@@ -96,7 +96,7 @@ const About = () => {
                   We work to prevent misuse and provide tools to report inappropriate content.
                 </p>
               </div>
-              
+
               <div className="bg-background p-6 rounded-lg border text-center">
                 <div className="bg-lemon-200 p-3 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
                   <MessageSquare className="h-6 w-6 text-lemon-500" />
@@ -109,7 +109,7 @@ const About = () => {
             </div>
           </div>
         </section>
-        
+
         {/* FAQ Section */}
         <section className="py-16 md:py-24">
           <div className="container px-4 md:px-6">
@@ -119,7 +119,7 @@ const About = () => {
                 Find answers to common questions about LemonDrop.
               </p>
             </div>
-            
+
             <div className="grid gap-6 max-w-3xl mx-auto">
               <div className="bg-card rounded-lg border shadow-sm p-6">
                 <h3 className="text-xl font-medium mb-2">Is LemonDrop really anonymous?</h3>
@@ -127,17 +127,24 @@ const About = () => {
                   Yes! Message senders remain completely anonymous. Recipients can never see who sent a message, and we don't track or store that information.
                 </p>
               </div>
-              
+
               <div className="bg-card rounded-lg border shadow-sm p-6">
                 <h3 className="text-xl font-medium mb-2">Can I delete messages I receive?</h3>
                 <p className="text-muted-foreground">
                   Absolutely. You have full control over your inbox and can delete any message at any time.
                 </p>
               </div>
+
+              <div className="bg-card rounded-lg border shadow-sm p-6">
+                <h3 className="text-xl font-medium mb-2">Can I reply to messages?</h3>
+                <p className="text-muted-foreground">
+                  Yes! If a sender provides their email address (which is optional), you can send a "blind reply". Your reply is sent to their email via LemonDrop, but you still won't see who they are.
+                </p>
+              </div>
             </div>
           </div>
         </section>
-        
+
         {/* CTA Section */}
         <section className="py-16 md:py-24 bg-secondary">
           <div className="container px-4 md:px-6">
@@ -162,7 +169,7 @@ const About = () => {
           </div>
         </section>
       </main>
-      
+
       <Footer />
     </div>
   );

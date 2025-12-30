@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Citrus, Trash2, Heart, Calendar, Search, RefreshCw, Archive, ArchiveRestore, Share } from 'lucide-react';
+import { Citrus, Trash2, Heart, Calendar, Search, RefreshCw, Archive, ArchiveRestore, Share, Reply, Mail } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
@@ -13,14 +13,19 @@ import Footer from '@/components/Footer';
 import { toast } from '@/components/ui/use-toast';
 import { getMessages, deleteMessage as apiDeleteMessage } from '@/auth/api';
 import { AuthContext } from '@/auth/AuthProvider';
+import ReplyDialog from '@/components/ReplyDialog';
 
-// Define the message type for better type safety
 interface Message {
   id: number;
   content: string;
   date: string;
   favorite: boolean;
   archived: boolean;
+  has_email: boolean;
+  reply: {
+    reply_content: string;
+    created_at: string;
+  } | null;
 }
 
 const formatTimestamp = (isoString: string) => {
@@ -39,6 +44,11 @@ const Messages = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Reply State
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(null);
+
   const { user } = useContext(AuthContext);
 
   const fetchMessages = async (showRefreshLoading = false) => {
@@ -51,12 +61,19 @@ const Messages = () => {
     try {
       const data = await getMessages(user.username);
 
+
+      // Load local storage states
+      const savedFavorites = JSON.parse(localStorage.getItem('lemon_drop_favorites') || '[]');
+      const savedArchived = JSON.parse(localStorage.getItem('lemon_drop_archived') || '[]');
+
       const mappedMessages = data.map((msg: any) => ({
         id: msg.id,
         content: msg.message_content || "",
         date: formatTimestamp(msg.created_at),
-        favorite: false,
-        archived: false
+        favorite: savedFavorites.includes(msg.id),
+        archived: savedArchived.includes(msg.id),
+        has_email: msg.has_email || false,
+        reply: msg.reply || null
       })).reverse();
       setMessages(mappedMessages);
 
@@ -94,28 +111,58 @@ const Messages = () => {
   });
 
   const toggleFavorite = (id: number) => {
-    setMessages(messages.map(message =>
-      message.id === id ? { ...message, favorite: !message.favorite } : message
-    ));
+    let isNowFavorite = false;
+
+    setMessages(messages.map(message => {
+      if (message.id === id) {
+        isNowFavorite = !message.favorite;
+        return { ...message, favorite: isNowFavorite };
+      }
+      return message;
+    }));
+
+    const savedFavorites = JSON.parse(localStorage.getItem('lemon_drop_favorites') || '[]');
+    let newFavorites;
+    if (isNowFavorite) {
+      newFavorites = [...savedFavorites, id];
+    } else {
+      newFavorites = savedFavorites.filter((favId: number) => favId !== id);
+    }
+    localStorage.setItem('lemon_drop_favorites', JSON.stringify(newFavorites));
 
     const message = messages.find(m => m.id === id);
     if (message) {
       toast({
-        title: message.favorite ? "Removed from favorites" : "Added to favorites",
+        title: isNowFavorite ? "Added to favorites" : "Removed from favorites",
         variant: "default",
       });
     }
   };
 
   const toggleArchive = (id: number) => {
-    setMessages(messages.map(message =>
-      message.id === id ? { ...message, archived: !message.archived } : message
-    ));
+    let isNowArchived = false;
+
+    setMessages(messages.map(message => {
+      if (message.id === id) {
+        isNowArchived = !message.archived;
+        return { ...message, archived: isNowArchived };
+      }
+      return message;
+    }));
+
+    const savedArchived = JSON.parse(localStorage.getItem('lemon_drop_archived') || '[]');
+    let newArchived;
+    if (isNowArchived) {
+      newArchived = [...savedArchived, id];
+    } else {
+      newArchived = savedArchived.filter((archId: number) => archId !== id);
+    }
+    localStorage.setItem('lemon_drop_archived', JSON.stringify(newArchived));
 
     const message = messages.find(m => m.id === id);
     if (message) {
       toast({
-        title: message.archived ? "Restored from archive" : "Moved to archive",
+        title: isNowArchived ? "Moved to archive" : "Restored from archive",
         variant: "default",
       });
     }
@@ -138,6 +185,25 @@ const Messages = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const openReplyDialog = (id: number) => {
+    setSelectedMessageId(id);
+    setReplyDialogOpen(true);
+  };
+
+  const handleReplySent = (messageId: number, content: string) => {
+    setMessages(messages.map(msg =>
+      msg.id === messageId
+        ? {
+          ...msg,
+          reply: {
+            reply_content: content,
+            created_at: new Date().toISOString()
+          }
+        }
+        : msg
+    ));
   };
 
   const copyShareLink = () => {
@@ -246,7 +312,7 @@ const Messages = () => {
                   ) : filteredMessages.length > 0 ? (
                     filteredMessages.map((message) => (
                       <div key={message.id} className="bg-background p-4 rounded-lg border">
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-0 gap-3 sm:gap-0">
                           <div className="flex items-center gap-2">
                             <Citrus className="h-4 w-4 text-lemon-400" />
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -255,7 +321,27 @@ const Messages = () => {
                             </span>
                           </div>
 
-                          <div className="flex m-0 items-center">
+                          <div className="flex items-center justify-end w-full sm:w-auto gap-1">
+                            {/* Reply Button - Only if enabled and not yet replied */}
+                            {message.has_email && !message.reply && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openReplyDialog(message.id)}
+                                title="Reply to sender"
+                                className="text-lemon-500 hover:text-lemon-600 hover:bg-lemon-50"
+                              >
+                                <Reply className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            )}
+
+                            {/* Replied Indicator */}
+                            {message.reply && (
+                              <div className="px-2" title="You replied to this message">
+                                <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                              </div>
+                            )}
+
                             <Button
                               variant="ghost"
                               size="icon"
@@ -300,6 +386,18 @@ const Messages = () => {
                         <div>
                           <p>{message.content}</p>
                           <p className='text-xs text-muted-foreground m-0 mt-1'>- Anonymous</p>
+
+                          {/* Display Reply if exists */}
+                          {message.reply && (
+                            <div className="mt-3 ml-4 pl-4 border-l-2 border-lemon-200">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">
+                                You replied on {formatTimestamp(message.reply.created_at)}:
+                              </p>
+                              <p className="text-sm text-foreground/90 italic">
+                                "{message.reply.reply_content}"
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
@@ -318,7 +416,7 @@ const Messages = () => {
                   ) : filteredMessages.length > 0 ? (
                     filteredMessages.map((message) => (
                       <div key={message.id} className="bg-background p-4 rounded-lg border">
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
                           <div className="flex items-center gap-2">
                             <Citrus className="h-4 w-4 text-lemon-400" />
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -327,7 +425,27 @@ const Messages = () => {
                             </span>
                           </div>
 
-                          <div className="flex m-0 items-center">
+                          <div className="flex items-center justify-end w-full sm:w-auto gap-1">
+
+                            {/* Reply Button Logic for Favorites tab too */}
+                            {message.has_email && !message.reply && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openReplyDialog(message.id)}
+                                title="Reply to sender"
+                                className="text-lemon-500 hover:text-lemon-600 hover:bg-lemon-50"
+                              >
+                                <Reply className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            )}
+                            {message.reply && (
+                              <div className="px-2" title="You replied to this message">
+                                <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                              </div>
+                            )}
+
+
                             <Button
                               variant="ghost"
                               size="icon"
@@ -370,8 +488,19 @@ const Messages = () => {
                           </div>
                         </div>
                         <div>
-                          <p>{message.content}</p>
+                          <p className="whitespace-pre-wrap">{message.content}</p>
                           <p className='text-xs text-muted-foreground m-0 mt-1'>- Anonymous</p>
+                          {/* Display Reply if exists */}
+                          {message.reply && (
+                            <div className="mt-3 ml-4 pl-4 border-l-2 border-lemon-200">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">
+                                You replied on {formatTimestamp(message.reply.created_at)}:
+                              </p>
+                              <p className="text-sm text-foreground/90 italic">
+                                "{message.reply.reply_content}"
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
@@ -400,6 +529,24 @@ const Messages = () => {
                           </div>
 
                           <div className="flex m-0 items-center">
+                            {/* Reply Button Logic for Archived tab too */}
+                            {message.has_email && !message.reply && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openReplyDialog(message.id)}
+                                title="Reply to sender"
+                                className="text-lemon-500 hover:text-lemon-600 hover:bg-lemon-50"
+                              >
+                                <Reply className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            )}
+                            {message.reply && (
+                              <div className="px-2" title="You replied to this message">
+                                <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                              </div>
+                            )}
+
                             <Button
                               variant="ghost"
                               size="icon"
@@ -442,8 +589,19 @@ const Messages = () => {
                           </div>
                         </div>
                         <div>
-                          <p>{message.content}</p>
+                          <p className="whitespace-pre-wrap">{message.content}</p>
                           <p className='text-xs text-muted-foreground m-0 mt-1'>- Anonymous</p>
+                          {/* Display Reply if exists */}
+                          {message.reply && (
+                            <div className="mt-3 ml-4 pl-4 border-l-2 border-lemon-200">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">
+                                You replied on {formatTimestamp(message.reply.created_at)}:
+                              </p>
+                              <p className="text-sm text-foreground/90 italic">
+                                "{message.reply.reply_content}"
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
@@ -460,6 +618,14 @@ const Messages = () => {
       </main>
 
       <Footer />
+
+      {/* Reply Dialog Integration */}
+      <ReplyDialog
+        isOpen={replyDialogOpen}
+        onOpenChange={setReplyDialogOpen}
+        messageId={selectedMessageId}
+        onReplySent={handleReplySent}
+      />
     </div>
   );
 };

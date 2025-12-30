@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Citrus, Send, EyeOff } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Citrus, Send, EyeOff, Mail } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { toast } from '@/components/ui/use-toast';
@@ -12,6 +13,7 @@ import { sendMessage } from "@/auth/api";
 const SendMessage = () => {
   const { username } = useParams();
   const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
@@ -39,10 +41,11 @@ const SendMessage = () => {
     setIsSending(true);
 
     try {
-      await sendMessage(username, message);
+      await sendMessage(username, message, email || undefined);
       setIsSending(false);
       setIsSent(true);
       setMessage('');
+      setEmail('');
 
       toast({
         title: "Message sent!",
@@ -65,22 +68,40 @@ const SendMessage = () => {
       <Navbar />
 
       <main className="flex-1 py-12 px-4">
-        <div className="container mx-auto max-w-md">
+        <div className="container mx-auto w-full max-w-md px-4 sm:px-0">
           {!isSent ? (
             <>
-              <div className="text-center mb-8">
+              <div className="text-center mb-6 sm:mb-8">
                 <div className="inline-block bg-lemon-200 p-3 rounded-full mb-4">
-                  <Citrus className="h-8 w-8 text-lemon-500" />
+                  <Citrus className="h-6 w-6 sm:h-8 sm:w-8 text-lemon-500" />
                 </div>
-                <h1 className="text-3xl font-bold">Send a Message</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold">Send a Message</h1>
                 <p className="text-muted-foreground mt-2">
                   Send an anonymous message to <span className="font-medium">{username || "user"}</span>
                 </p>
               </div>
 
-              <div className="bg-card rounded-lg border shadow-sm p-6">
+              <div className="bg-card rounded-lg border shadow-sm p-4 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
+                    <label className="text-sm font-medium mb-1 block">Your Email (Optional)</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="name@example.com"
+                        className="pl-9 bg-background"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1 ml-1">
+                      Only provide if you want to receive a reply.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Message</label>
                     <Textarea
                       placeholder="Type your anonymous message here..."
                       className="min-h-[150px] resize-none"
@@ -131,15 +152,15 @@ const SendMessage = () => {
               <p className="text-muted-foreground mt-2 mb-6">
                 Your anonymous message has been delivered successfully.
               </p>
-              <div className='flex items-center gap-3 justify-center'>
+              <div className='flex flex-col sm:flex-row items-center gap-3 justify-center w-full'>
                 <Button
                   onClick={() => setIsSent(false)}
-                  className="bg-lemon-400 hover:bg-lemon-500 text-white"
+                  className="w-full sm:w-auto bg-lemon-400 hover:bg-lemon-500 text-white"
                 >
                   Send Another Message
                 </Button>
-                <Link to="/signup">
-                  <Button variant="outline" className='hover:text-white hover:bg-lemon-500'>
+                <Link to="/signup" className="w-full sm:w-auto">
+                  <Button variant="outline" className='w-full hover:text-white hover:bg-lemon-500'>
                     Get Your Own Link
                   </Button>
                 </Link>

@@ -161,8 +161,8 @@ const Index = () => {
                 <div className="bg-lemon-300 p-3 rounded-full mb-4">
                   <Shield className="h-6 w-6 text-lemon-500" />
                 </div>
-                <h3 className="text-xl font-medium mb-2">Receive Messages</h3>
-                <p className="text-muted-foreground">Get anonymous feedback and messages in your inbox securely.</p>
+                <h3 className="text-xl font-medium mb-2">Receive & Reply</h3>
+                <p className="text-muted-foreground">Get anonymous feedback securely. If senders provide their email, you can reply anonymously without knowing who they are.</p>
               </div>
             </div>
           </div>
